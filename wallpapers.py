@@ -50,8 +50,16 @@ def check_config():
         config['DEFAULT']['folder'] = config_path
         config['DEFAULT']['last'] = ''
         with open(config_file, 'w') as configfile:    
-                    config.write(configfile)
-
+            config.write(configfile)
+    else:
+        config = configparser.ConfigParser()
+        config.read(config_file)
+        wallpaper_folder = config['DEFAULT']['folder']
+        if not os.path.isdir(wallpaper_folder):
+            config['DEFAULT']['folder'] = config_path
+            with open(config_file, 'w') as configfile:    
+                config.write(configfile)
+                
 def run_main():
     # Initiate the parser
     parser = argparse.ArgumentParser()
