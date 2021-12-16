@@ -1,6 +1,6 @@
 import os, configparser, ctypes, random, argparse
 
-config_path = os.getcwd()
+config_path = os.path.dirname(os.path.realpath(__file__))
 config_file = os.path.join(config_path, 'wallpapers.ini')
 
 # next_wallpaper(): 
@@ -11,7 +11,6 @@ def next_wallpaper():
     config = configparser.ConfigParser()
     config.read(config_file)
     wallpaper_location = config.get('DEFAULT', 'folder')
-
     # get file list, only .jpg and .jpeg
     files = os.listdir(wallpaper_location)
     backgrounds = [file for file in files if file.endswith(( '.jpg', '.jpeg', '.png'))]
@@ -20,7 +19,6 @@ def next_wallpaper():
         new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
         if os.path.isfile(new_wallpaper):
             ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
-            
             # update config file with the location of current wallpaper
             config['DEFAULT']['last'] = new_wallpaper
             with open(config_file, 'w') as configfile:    
@@ -34,10 +32,8 @@ def delete_wallpaper():
     config = configparser.ConfigParser()
     config.read(config_file)
     wallpaper_location = config.get('DEFAULT', 'last')
-
     if os.path.isfile(wallpaper_location):
         os.remove(wallpaper_location)
-    
     next_wallpaper()
 
 # set_path():
