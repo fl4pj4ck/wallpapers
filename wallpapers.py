@@ -1,6 +1,6 @@
 import os, configparser, ctypes, random, argparse
 
-config_path = os.path.dirname(os.path.realpath(__file__))
+config_path = os.path.abspath(os.path.dirname(__file__))
 config_file = os.path.join(config_path, 'wallpapers.ini')
 
 # next_wallpaper(): 
