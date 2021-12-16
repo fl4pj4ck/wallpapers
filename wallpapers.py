@@ -3,6 +3,9 @@ import os, configparser, ctypes, random, argparse
 config_path = os.getcwd()
 config_file = os.path.join(config_path, 'wallpapers.ini')
 
+# next_wallpaper(): 
+# pick a new wallpaper from _folder_ and set it as current background
+# + update _ini_ file with its path
 def next_wallpaper():
     # read source folder from wallpapers.cfg
     config = configparser.ConfigParser()
@@ -12,7 +15,6 @@ def next_wallpaper():
     # get file list, only .jpg and .jpeg
     files = os.listdir(wallpaper_location)
     backgrounds = [file for file in files if file.endswith(( '.jpg', '.jpeg', '.png'))]
-
     if backgrounds:
         # set new wallpaper
         new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
@@ -23,7 +25,9 @@ def next_wallpaper():
             config['DEFAULT']['last'] = new_wallpaper
             with open(config_file, 'w') as configfile:    
                 config.write(configfile)
-
+# delete_wallpaper():
+# get current background path from _ini_ and delete
+# + manually call next_wallpaper()
 def delete_wallpaper():
     # read source folder from wallpapers.cfg
     config = configparser.ConfigParser()
@@ -35,6 +39,9 @@ def delete_wallpaper():
     
     next_wallpaper()
 
+# set_path():
+# update wallpapers folder in _ini_
+# + manually call next_wallpaper() 
 def set_path(new_path):
     if os.path.isdir(new_path):
         config = configparser.ConfigParser()
@@ -44,6 +51,9 @@ def set_path(new_path):
             config.write(configfile)
         next_wallpaper()
 
+# check_config():
+# look up _ini_ file and if it doesn't exist - create
+# + if no folder reference - create using getcwd()
 def check_config():
     if not os.path.isfile(config_file):
         config = configparser.ConfigParser()
@@ -59,7 +69,9 @@ def check_config():
             config['DEFAULT']['folder'] = config_path
             with open(config_file, 'w') as configfile:    
                 config.write(configfile)
-                
+
+# run_main()
+# where the magic happens
 def run_main():
     # Initiate the parser
     parser = argparse.ArgumentParser()
