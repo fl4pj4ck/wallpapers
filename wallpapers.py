@@ -25,6 +25,7 @@ def next_wallpaper():
             config['DEFAULT']['last'] = new_wallpaper
             with open(config_file, 'w') as configfile:    
                 config.write(configfile)
+
 # delete_wallpaper():
 # get current background path from _ini_ and delete
 # + manually call next_wallpaper()
@@ -73,15 +74,13 @@ def check_config():
 # run_main()
 # where the magic happens
 def run_main():
+    check_config()
     # Initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-D", "--delete", action="store_true")
     parser.add_argument("-P", "--path", type=str)
-
     # Read arguments from the command line
     args = parser.parse_args()
-
-    # Check for --version or -V
     if args.delete:
         delete_wallpaper()
     elif args.path:
@@ -89,5 +88,5 @@ def run_main():
     else:
         next_wallpaper()
 
-check_config()
-run_main()
+if __name__ == "__main__":
+    run_main()
