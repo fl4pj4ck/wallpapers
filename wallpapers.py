@@ -1,8 +1,20 @@
 import os, configparser, ctypes, random, argparse
 from send2trash import send2trash
+from win10toast_click import ToastNotifier 
 
 config_path = os.path.abspath(os.path.dirname(__file__))
 config_file = os.path.join(config_path, 'wallpapers.ini')
+
+def toast(title, message):
+    toaster = ToastNotifier()
+    toaster.show_toast(
+        title,
+        message,
+        icon_path = None,
+        duration = 1,
+        threaded = True,
+        callback_on_click = None
+    )
 
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
@@ -35,6 +47,7 @@ def delete_wallpaper():
     wallpaper_location = config.get('DEFAULT', 'last')
     if os.path.isfile(wallpaper_location):
         send2trash(wallpaper_location)
+        toast('Wallpapers', 'Deleted '+os.path.basename(wallpaper_location))
     next_wallpaper()
 
 # set_path():
@@ -47,6 +60,7 @@ def set_path(new_path):
         config['DEFAULT']['folder'] = new_path
         with open(config_file, 'w') as configfile:    
             config.write(configfile)
+        toast('Wallpapers', 'Folder: ' + new_path)
         next_wallpaper()
 
 # check_config():
@@ -59,6 +73,7 @@ def check_config():
         config['DEFAULT']['last'] = ''
         with open(config_file, 'w') as configfile:    
             config.write(configfile)
+        toast('Wallpapers', 'New config created!')
     else:
         config = configparser.ConfigParser()
         config.read(config_file)
