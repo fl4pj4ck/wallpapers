@@ -1,4 +1,5 @@
 import os, configparser, ctypes, random, argparse
+from send2trash import send2trash
 
 config_path = os.path.abspath(os.path.dirname(__file__))
 config_file = os.path.join(config_path, 'wallpapers.ini')
@@ -33,7 +34,7 @@ def delete_wallpaper():
     config.read(config_file)
     wallpaper_location = config.get('DEFAULT', 'last')
     if os.path.isfile(wallpaper_location):
-        os.remove(wallpaper_location)
+        send2trash(wallpaper_location)
     next_wallpaper()
 
 # set_path():
