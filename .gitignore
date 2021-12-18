@@ -1,5 +1,6 @@
 wallpapers.ini
 output/
 *.pyc
-__pycache__/
 wallpapers.cpython-*.pyc
+__pycache__/
+.vscode/
