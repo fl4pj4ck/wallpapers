@@ -1,1 +1,5 @@
 wallpapers.ini
+output/
+*.pyc
+__pycache__/
+wallpapers.cpython-*.pyc
