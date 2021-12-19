@@ -1,7 +1,7 @@
-import os, configparser, ctypes, random, argparse
+import os, configparser, ctypes, random, argparse, sys
 from send2trash import send2trash
 
-config_path = os.path.abspath(os.path.dirname(__file__))
+config_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 config_file = os.path.join(config_path, 'wallpapers.ini')
 
 # next_wallpaper(): 

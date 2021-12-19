@@ -4,3 +4,8 @@ output/
 wallpapers.cpython-*.pyc
 __pycache__/
 .vscode/
+next_wallpaper.ico
+dist/
+build/
+.gitignore
+wallpapers.spec
