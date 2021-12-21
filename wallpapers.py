@@ -14,6 +14,12 @@ def set_config(config, name, setting):
     with open(config_file, 'w') as configfile:    
         config.write(configfile)
 
+def set_wallpaper(config, new_wallpaper):
+    if os.path.isfile(new_wallpaper):
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
+        # update config file with the location of current wallpaper
+        set_config(config, 'last', new_wallpaper)
+
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
 # + update _ini_ file with its path
@@ -25,10 +31,8 @@ def next_wallpaper(config):
     if backgrounds:
         # set new wallpaper
         new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
-        if os.path.isfile(new_wallpaper):
-            ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
-            # update config file with the location of current wallpaper
-            set_config(config, 'last', new_wallpaper)
+        set_wallpaper(config, new_wallpaper)
+
 
 # delete_wallpaper():
 # get current background path from _ini_ and delete
@@ -54,11 +58,19 @@ def check_config(config):
     if not os.path.isfile(config_file):
         set_config(config, 'folder', config_path)
         set_config(config, 'last', '')
+        set_config(config, 'safe', '')
     else:
         if not os.path.isdir(get_config(config, 'folder')):
             set_config(config, 'folder', config_path)
         if not os.path.isdir(get_config(config, 'last')):
-            set_config(config, 'last', '')            
+            set_config(config, 'last', '')
+        if not os.path.isdir(get_config(config, 'safe')):
+            set_config(config, 'safe', '')            
+
+def load_safe(config):
+    if os.path.isfile(get_config(config, 'safe')):
+        set_wallpaper(config, get_config(config, 'safe'))
+        set_config(config, 'last', '')
 
 # run_main()
 # where the magic happens
@@ -68,6 +80,7 @@ def run_main():
     # Initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-D", "--delete", action="store_true")
+    parser.add_argument("-S", "--safe", action="store_true")
     parser.add_argument("-P", "--path", type=str)
     # Read arguments from the command line
     args = parser.parse_args()
@@ -75,6 +88,8 @@ def run_main():
         delete_wallpaper(config)
     elif args.path:
         set_path(config, args.path)
+    elif args.safe:
+        load_safe(config)
     else:
         next_wallpaper(config)
 
