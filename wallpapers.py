@@ -34,7 +34,7 @@ def next_wallpaper(config):
 # get current background path from _ini_ and delete
 # + manually call next_wallpaper()
 def delete_wallpaper(config):
-    wallpaper_location = get_config('last')
+    wallpaper_location = get_config(config, 'last')
     if os.path.isfile(wallpaper_location):
         send2trash(wallpaper_location)
     next_wallpaper(config)
