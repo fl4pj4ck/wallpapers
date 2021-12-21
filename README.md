@@ -2,6 +2,9 @@
 
 Small Python3 utility to change Windows wallpapers.
 
+Credits:
+https://github.com/arsenetar/send2trash
+
 Usage:
 
 wallpapers.py [-P path] [-D]
