@@ -1,7 +1,9 @@
 # wallpapers
 
 Small Python3 utility to change Windows wallpapers.
+
 Usage:
+
 wallpapers.py [-P path] [-D]
 
 - no parameter: next wallpaper from selected folder
@@ -9,9 +11,13 @@ wallpapers.py [-P path] [-D]
 - [-D] delete current wallpaper and display next
 
 Configuration stored in wallpapers.ini:
+
     [DEFAULT]
+    
     folder = X:\location_for_folder_containing_image files
+    
     last = X:\location_for_folder_containing_image files\currently_displayed_wallpaper.png
+
 
 Distributed under MIT Licencse.
 
