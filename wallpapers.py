@@ -1,19 +1,38 @@
-import os, configparser, ctypes, random, argparse, sys
+import os, configparser, ctypes, random, argparse, sys, datetime, time
 from send2trash import send2trash
 
 config_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 config_file = os.path.join(config_path, 'wallpapers.ini')
+log_file = os.path.join(config_path, 'wallpapers.log')
 
+# not_seen(path)
+# returns True if file not seen previously
+# + creates log file if doesn't exist
+def not_seen(config, path):
+    if os.path.isfile(log_file):
+        with open(log_file, "r") as f:
+            return not (path in f.readlines())
+    else:
+        with open(log_file, 'w') as f:
+            pass
+
+# get_config(config, setting)
+# returns value of setting for a given config object
 def get_config(config, setting):
     # read source folder from wallpapers.cfg
     config.read(config_file)
     return str((config.get('DEFAULT', setting))).lower()
 
+# set_config(config, name, setting)
+# sets value to setting for a given config object
 def set_config(config, name, setting):
     config['DEFAULT'][name] = setting
     with open(config_file, 'w') as configfile:    
         config.write(configfile)
 
+# set_wallpaper(config, new_wallpaper)
+# setting new wallpaper to one at location new_wallpaper
+# + update las seen in config
 def set_wallpaper(config, new_wallpaper):
     if os.path.isfile(new_wallpaper):
         ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
@@ -30,9 +49,14 @@ def next_wallpaper(config):
     backgrounds = [file for file in files if file.endswith(( '.jpg', '.jpeg', '.png'))]
     if backgrounds:
         # set new wallpaper
-        new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
-        set_wallpaper(config, new_wallpaper)
-
+        while True:
+            new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
+            if not_seen(config, new_wallpaper):
+                set_wallpaper(config, new_wallpaper)
+                with open(log_file, "a") as f:
+                    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+                    f.write("(" + timestamp + ") " + new_wallpaper + "\n")
+                return
 
 # delete_wallpaper():
 # get current background path from _ini_ and delete
@@ -68,6 +92,8 @@ def check_config(config):
         if not os.path.isfile(get_config(config, 'safe')):
             set_config(config, 'safe', '')            
 
+# load_safe(config)
+# loads "safe" wallpaper specified in config
 def load_safe(config):
     last = get_config(config, 'last')
     set_wallpaper(config, get_config(config, 'safe'))
@@ -93,5 +119,7 @@ def run_main():
     else:
         next_wallpaper(config)
 
+##########################################################################################
 if __name__ == "__main__":
     run_main()
+##########################################################################################
