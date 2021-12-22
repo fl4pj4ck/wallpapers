@@ -3,15 +3,17 @@
 Small Python3 utility to change Windows wallpapers.
 
 Credits:
+
 https://github.com/arsenetar/send2trash
 
 Usage:
 
-wallpapers.py [-P path] [-D]
+wallpapers.py [-P path]/[-D]/[-S]
 
 - no parameter: next wallpaper from selected folder
 - [-P path] provide new path from which a new wallpaper will be picked
 - [-D] delete current wallpaper and display next
+- [-S] switch to a predefined "safe" wallpaper
 
 Configuration stored in wallpapers.ini:
 
@@ -20,6 +22,8 @@ Configuration stored in wallpapers.ini:
     folder = X:\location_for_folder_containing_image files
     
     last = X:\location_for_folder_containing_image files\currently_displayed_wallpaper.png
+
+    safe = X:\location_for_safe_wallpaper.png
 
 
 Distributed under MIT Licencse.
