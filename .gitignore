@@ -7,5 +7,6 @@ dist/
 temp/
 next_wallpaper.ico
 wallpapers.spec
+wallpapers.ini
 .gitignore
 *.pyc
