@@ -7,7 +7,7 @@ config_file = os.path.join(config_path, 'wallpapers.ini')
 def get_config(config, setting):
     # read source folder from wallpapers.cfg
     config.read(config_file)
-    return(config.get('DEFAULT', setting))    
+    return str((config.get('DEFAULT', setting))).lower()
 
 def set_config(config, name, setting):
     config['DEFAULT'][name] = setting
@@ -39,9 +39,10 @@ def next_wallpaper(config):
 # + manually call next_wallpaper()
 def delete_wallpaper(config):
     wallpaper_location = get_config(config, 'last')
-    if os.path.isfile(wallpaper_location):
-        send2trash(wallpaper_location)
-    next_wallpaper(config)
+    if wallpaper_location != get_config(config, 'safe'):
+        if os.path.isfile(wallpaper_location):
+            send2trash(wallpaper_location)
+            next_wallpaper(config)
 
 # set_path():
 # update wallpapers folder in _ini_
@@ -62,15 +63,14 @@ def check_config(config):
     else:
         if not os.path.isdir(get_config(config, 'folder')):
             set_config(config, 'folder', config_path)
-        if not os.path.isdir(get_config(config, 'last')):
+        if not os.path.isfile(get_config(config, 'last')):
             set_config(config, 'last', '')
-        if not os.path.isdir(get_config(config, 'safe')):
+        if not os.path.isfile(get_config(config, 'safe')):
             set_config(config, 'safe', '')            
 
 def load_safe(config):
-    if os.path.isfile(get_config(config, 'safe')):
-        set_wallpaper(config, get_config(config, 'safe'))
-        set_config(config, 'last', '')
+    last = get_config(config, 'last')
+    set_wallpaper(config, get_config(config, 'safe'))
 
 # run_main()
 # where the magic happens
