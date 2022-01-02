@@ -38,6 +38,9 @@ def set_wallpaper(config, new_wallpaper):
         ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
         # update config file with the location of current wallpaper
         set_config(config, 'last', new_wallpaper)
+        with open(log_file, "a") as f:
+            timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            f.write("(" + timestamp + ") " + new_wallpaper + "\n")
 
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
@@ -53,9 +56,6 @@ def next_wallpaper(config):
             new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
             if not_seen(config, new_wallpaper):
                 set_wallpaper(config, new_wallpaper)
-                with open(log_file, "a") as f:
-                    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-                    f.write("(" + timestamp + ") " + new_wallpaper + "\n")
                 return
 
 # delete_wallpaper():
@@ -106,7 +106,7 @@ def run_main():
     # Initiate the parser
     parser = argparse.ArgumentParser()
     parser.add_argument("-D", "--delete", action="store_true")
-    parser.add_argument("-S", "--safe", action="store_true")
+    parser.add_argument("-S", "--safe", action="store_true")             
     parser.add_argument("-P", "--path", type=str)
     # Read arguments from the command line
     args = parser.parse_args()
