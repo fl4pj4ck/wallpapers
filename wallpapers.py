@@ -54,7 +54,7 @@ def next_wallpaper(config):
         # set new wallpaper
         while True:
             new_wallpaper = os.path.join(wallpaper_location, random.choice(backgrounds))
-            if not_seen(config, new_wallpaper):
+            if not_seen(config, new_wallpaper) and os.stat(new_wallpaper).st_size>0:
                 set_wallpaper(config, new_wallpaper)
                 return
 
