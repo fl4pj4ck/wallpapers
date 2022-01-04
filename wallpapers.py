@@ -39,8 +39,7 @@ def set_wallpaper(config, new_wallpaper):
         # update config file with the location of current wallpaper
         set_config(config, 'last', new_wallpaper)
         with open(log_file, "a") as f:
-            timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-            f.write("(" + timestamp + ") " + new_wallpaper + "\n")
+            f.write(timestamp() + "|" + new_wallpaper + "\n")
 
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
@@ -58,15 +57,23 @@ def next_wallpaper(config):
                 set_wallpaper(config, new_wallpaper)
                 return
 
+# timestamp()
+# returns current timestamp as string
+def timestamp():
+    return datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%y %H:%M')
+
 # delete_wallpaper():
 # get current background path from _ini_ and delete
 # + manually call next_wallpaper()
 def delete_wallpaper(config):
     wallpaper_location = get_config(config, 'last')
-    if wallpaper_location != get_config(config, 'safe'):
-        if os.path.isfile(wallpaper_location):
-            send2trash(wallpaper_location)
-            next_wallpaper(config)
+    if os.path.isfile(wallpaper_location):
+        #send2trash(wallpaper_location)
+        ff = open(wallpaper_location, "w")
+        ff.close()
+        with open(log_file, "a") as f:
+            f.write(timestamp() + "|Removed " + wallpaper_location + "\n")
+        next_wallpaper(config)
 
 # set_path():
 # update wallpapers folder in _ini_
