@@ -1,4 +1,4 @@
-import os, configparser, ctypes, random, argparse, sys, datetime, time
+import os, configparser, ctypes, random, argparse, sys, datetime, time, shutil
 from send2trash import send2trash
 
 config_path = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -11,10 +11,12 @@ log_file = os.path.join(config_path, 'wallpapers.log')
 def not_seen(config, path):
     if os.path.isfile(log_file):
         with open(log_file, "r") as f:
-            return not (path in f.readlines())
+            if path in f.readlines():
+                return False
     else:
         with open(log_file, 'w') as f:
             pass
+    return True
 
 # get_config(config, setting)
 # returns value of setting for a given config object
@@ -37,9 +39,9 @@ def set_wallpaper(config, new_wallpaper):
     if os.path.isfile(new_wallpaper):
         ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
         # update config file with the location of current wallpaper
-        set_config(config, 'last', new_wallpaper)
         with open(log_file, "a") as f:
             f.write(timestamp() + "|" + new_wallpaper + "\n")
+        set_config(config, 'last', new_wallpaper)
 
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
@@ -60,7 +62,7 @@ def next_wallpaper(config):
 # timestamp()
 # returns current timestamp as string
 def timestamp():
-    return datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%y %H:%M')
+    return datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%y,%H:%M')
 
 # delete_wallpaper():
 # get current background path from _ini_ and delete
