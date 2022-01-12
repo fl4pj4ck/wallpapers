@@ -70,7 +70,7 @@ def timestamp():
 def delete_wallpaper(config):
     wallpaper_location = get_config(config, 'last')
     if os.path.isfile(wallpaper_location):
-        #send2trash(wallpaper_location)
+        send2trash(wallpaper_location)
         ff = open(wallpaper_location, "w")
         ff.close()
         with open(log_file, "a") as f:
