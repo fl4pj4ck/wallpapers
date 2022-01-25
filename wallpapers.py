@@ -1,21 +1,21 @@
 import os, configparser, ctypes, random, argparse, sys, datetime, time, shutil
 from send2trash import send2trash
+from PIL import Image
 
 config_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 config_file = os.path.join(config_path, 'wallpapers.ini')
-log_file = os.path.join(config_path, 'wallpapers.log')
+log_file    = os.path.join(config_path, 'wallpapers.log')
 
 # not_seen(path)
 # returns True if file not seen previously
 # + creates log file if doesn't exist
 def not_seen(config, path):
     if os.path.isfile(log_file):
-        with open(log_file, "r") as f:
-            if path in f.readlines():
-                return False
+        if path in open(log_file).read():
+            return False
     else:
         with open(log_file, 'w') as f:
-            pass
+            f.close(f)
     return True
 
 # get_config(config, setting)
@@ -39,9 +39,10 @@ def set_wallpaper(config, new_wallpaper):
     if os.path.isfile(new_wallpaper):
         ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
         # update config file with the location of current wallpaper
-        with open(log_file, "a") as f:
-            f.write(timestamp() + "|" + new_wallpaper + "\n")
-        set_config(config, 'last', new_wallpaper)
+        if get_config(config, 'last') != new_wallpaper:
+            with open(log_file, "a") as f:
+                f.write(new_wallpaper + "\n")
+            set_config(config, 'last', new_wallpaper)
 
 # next_wallpaper(): 
 # pick a new wallpaper from _folder_ and set it as current background
@@ -59,11 +60,6 @@ def next_wallpaper(config):
                 set_wallpaper(config, new_wallpaper)
                 return
 
-# timestamp()
-# returns current timestamp as string
-def timestamp():
-    return datetime.datetime.fromtimestamp(time.time()).strftime('%d-%m-%y,%H:%M')
-
 # delete_wallpaper():
 # get current background path from _ini_ and delete
 # + manually call next_wallpaper()
@@ -71,10 +67,10 @@ def delete_wallpaper(config):
     wallpaper_location = get_config(config, 'last')
     if os.path.isfile(wallpaper_location):
         send2trash(wallpaper_location)
-        ff = open(wallpaper_location, "w")
-        ff.close()
+        #ff = open(wallpaper_location, "w")
+        #ff.close()
         with open(log_file, "a") as f:
-            f.write(timestamp() + "|Removed " + wallpaper_location + "\n")
+            f.write("   -> Removed\n")
         next_wallpaper(config)
 
 # set_path():
@@ -107,6 +103,19 @@ def load_safe(config):
     last = get_config(config, 'last')
     set_wallpaper(config, get_config(config, 'safe'))
 
+# flips image either horizontally or vertically
+def flip(config, axis):
+    last = get_config(config, 'last')
+    if os.path.isfile(last):
+        current_image = Image.open(last)
+        new_image = current_image.transpose(method=axis)
+        send2trash(last)
+        new_image.save(last)
+        set_wallpaper(config, last)
+        entry = "   -> Flipped " + str(axis) + "\n"
+        with open(log_file, "a") as f:
+            f.write(entry)
+            
 # run_main()
 # where the magic happens
 def run_main():
@@ -117,6 +126,8 @@ def run_main():
     parser.add_argument("-D", "--delete", action="store_true")
     parser.add_argument("-S", "--safe", action="store_true")             
     parser.add_argument("-P", "--path", type=str)
+    parser.add_argument("-H", "--hor", action="store_true")
+    parser.add_argument("-V", "--ver", action="store_true")
     # Read arguments from the command line
     args = parser.parse_args()
     if args.delete:
@@ -125,6 +136,10 @@ def run_main():
         set_path(config, args.path)
     elif args.safe:
         load_safe(config)
+    elif args.hor:
+        flip(config, Image.FLIP_LEFT_RIGHT)
+    elif args.ver:
+        flip(config, Image.FLIP_TOP_BOTTOM)
     else:
         next_wallpaper(config)
 
