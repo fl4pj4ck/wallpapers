@@ -6,6 +6,22 @@ config_path = os.path.dirname(os.path.realpath(sys.argv[0]))
 config_file = os.path.join(config_path, 'wallpapers.ini')
 log_file    = os.path.join(config_path, 'wallpapers.log')
 
+# removes first line of the log (current)
+#  returns second line of the log, which is previous image
+def unlog():
+    with open(log_file, "r") as f:
+        content = f.read().splitlines(True)
+    with open(log_file, "w") as f:
+        f.writelines(content[1:])
+    return content[0]
+
+# logs a line on top of logfile
+def log(entry = "---------------------------------"):
+    with open(log_file, "r+") as f:
+        content = f.read()
+        f.seek(0)
+        f.write(entry + '\n' + content)
+
 # not_seen(path)
 # returns True if file not seen previously
 # + creates log file if doesn't exist
@@ -14,8 +30,7 @@ def not_seen(config, path):
         if path in open(log_file).read():
             return False
     else:
-        with open(log_file, 'w') as f:
-            f.close(f)
+        log()
     return True
 
 # get_config(config, setting)
@@ -40,8 +55,7 @@ def set_wallpaper(config, new_wallpaper):
         ctypes.windll.user32.SystemParametersInfoW(20, 0, new_wallpaper , 0)
         # update config file with the location of current wallpaper
         if get_config(config, 'last') != new_wallpaper:
-            with open(log_file, "a") as f:
-                f.write(new_wallpaper + "\n")
+            log(new_wallpaper)
             set_config(config, 'last', new_wallpaper)
 
 # next_wallpaper(): 
@@ -60,6 +74,12 @@ def next_wallpaper(config):
                 set_wallpaper(config, new_wallpaper)
                 return
 
+# previous_wallpaper()
+# set a wallpaper to one before
+def previous_wallpaper(config):
+    unlog()
+    set_wallpaper(config, unlog())
+
 # delete_wallpaper():
 # get current background path from _ini_ and delete
 # + manually call next_wallpaper()
@@ -67,16 +87,13 @@ def delete_wallpaper(config):
     wallpaper_location = get_config(config, 'last')
     if os.path.isfile(wallpaper_location):
         send2trash(wallpaper_location)
-        #ff = open(wallpaper_location, "w")
-        #ff.close()
-        with open(log_file, "a") as f:
-            f.write("   -> Removed\n")
+        unlog()
         next_wallpaper(config)
 
 # set_path():
 # update wallpapers folder in _ini_
 # + manually call next_wallpaper() 
-def set_path(config, new_path):
+def set_folder(config, new_path):
     if os.path.isdir(new_path):
         set_config(config, 'folder', new_path)
         next_wallpaper(config)
@@ -100,7 +117,6 @@ def check_config(config):
 # load_safe(config)
 # loads "safe" wallpaper specified in config
 def load_safe(config):
-    last = get_config(config, 'last')
     set_wallpaper(config, get_config(config, 'safe'))
 
 # flips image either horizontally or vertically
@@ -112,10 +128,7 @@ def flip(config, axis):
         send2trash(last)
         new_image.save(last)
         set_wallpaper(config, last)
-        entry = "   -> Flipped " + str(axis) + "\n"
-        with open(log_file, "a") as f:
-            f.write(entry)
-            
+
 # run_main()
 # where the magic happens
 def run_main():
@@ -125,17 +138,20 @@ def run_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-D", "--delete", action="store_true")
     parser.add_argument("-S", "--safe", action="store_true")             
-    parser.add_argument("-P", "--path", type=str)
+    parser.add_argument("-F", "--folder", type=str)
     parser.add_argument("-H", "--hor", action="store_true")
     parser.add_argument("-V", "--ver", action="store_true")
+    parser.add_argument("-P", "--previous", action="store_true")
     # Read arguments from the command line
     args = parser.parse_args()
     if args.delete:
         delete_wallpaper(config)
-    elif args.path:
-        set_path(config, args.path)
+    elif args.folder:
+        set_folder(config, args.folder)
     elif args.safe:
         load_safe(config)
+    elif args.previous:
+        previous_wallpaper(config)
     elif args.hor:
         flip(config, Image.FLIP_LEFT_RIGHT)
     elif args.ver:
